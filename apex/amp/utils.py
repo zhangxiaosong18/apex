@@ -92,7 +92,10 @@ def cached_cast(cast_fn, x, cache):
         return type(x)([cached_cast(y) for y in x])
     if x in cache:
         cached_x = cache[x]
+        next_functions_available = False
         if x.requires_grad and cached_x.requires_grad:
+            if len(cached_x.grad_fn.next_functions) > 1:
+                next_functions_available = True
             # Make sure x is actually cached_x's autograd parent.
             if next_functions_available and cached_x.grad_fn.next_functions[1][0].variable is not x:
                 raise RuntimeError("x and cache[x] both require grad, but x is not "
